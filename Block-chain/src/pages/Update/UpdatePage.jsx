@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { FileInput } from "../../components/FileInput"; 
 import { FilePreview } from "../../components/FilePreview";
+//import { Button } from "bootstrap";
+import { Button } from "../../components/Button";
+import { ValidationPage } from "../Validation/ValidationPage";
 
 export const UpdatePage = () => {
   const [fileContent, setFileContent] = useState("");
@@ -21,12 +24,13 @@ export const UpdatePage = () => {
   return (
     <div className="container py-5">
       <h2 className="mb-4 text-center">Cargar archivo</h2>
-
       
+
+
       <FileInput onFileChange={handleFileChange} />
-
       <FilePreview fileName={fileName} fileContent={fileContent} />
-
+      <Button variant="primary">Cargar</Button>
+      <ValidationPage fileContent={fileContent} />
     </div>
   );
 }
