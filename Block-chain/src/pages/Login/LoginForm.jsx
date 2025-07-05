@@ -1,5 +1,6 @@
-import { Button } from "./Button";
-import { InputField } from "./InputField";
+import PropTypes from "prop-types";
+import { Button } from "../../components/Button";
+import { InputField } from "../../components/InputField";
 
 export const LoginForm = ({ onSubmit, username, password, onUsernameChange, onPasswordChange }) => {
   return (
@@ -9,4 +10,12 @@ export const LoginForm = ({ onSubmit, username, password, onUsernameChange, onPa
       <Button type="submit">Iniciar Sesión</Button>
     </form>
   );
+};
+
+LoginForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  username: PropTypes.string.isRequired,
+  password: PropTypes.string.isRequired,
+  onUsernameChange: PropTypes.func.isRequired,
+  onPasswordChange: PropTypes.func.isRequired,
 };
