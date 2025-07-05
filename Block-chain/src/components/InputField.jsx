@@ -1,19 +1,24 @@
 import PropTypes from 'prop-types';
 
-export const InputField=({ label, type, value, onChange, required = false })=>{
-return (
-    <div className="input-field">   
-        <label>{label}</label>
-      <input type={type} value={value} onChange={onChange} required={required} />
+export const InputField = ({ label, type, value, onChange, required }) => {
+  return (
+    <div className="mb-3">
+      <label className="form-label">{label}</label>
+      <input
+        type={type}
+        className="form-control"
+        value={value}
+        onChange={onChange}
+        required={required}
+      />
     </div>
-)
-}
+  );
+};
 
-//definimos que es requerido todo
 InputField.propTypes = {
-    label: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-    required: PropTypes.bool
-}
+  label: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  required: PropTypes.bool
+};
