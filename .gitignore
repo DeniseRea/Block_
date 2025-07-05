@@ -1,0 +1,21 @@
+# node modules
+/node_modules
+
+# build output
+/build
+
+# system files
+.DS_Store
+Thumbs.db
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# environment variables
+.env
+
+# editor configs
+.vscode/
+.idea/
