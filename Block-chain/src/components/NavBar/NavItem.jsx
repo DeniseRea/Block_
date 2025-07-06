@@ -1,18 +1,19 @@
 // src/components/Navbar/NavItem.jsx
-import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
-export const NavItem = ({ to, label, icon }) => (
+export const NavItem = ({ onClick, icon }) => (
   <li className="nav-item">
-    <Link className="nav-link d-flex align-items-center" to={to}>
-      {icon && <span className="me-2">{icon}</span>}
-      {label}
-    </Link>
+    <button 
+      className="btn p-2 d-flex align-items-center justify-content-center" 
+      onClick={onClick}
+      style={{ background: 'none', border: 'none' }}
+    >
+      {icon}
+    </button>
   </li>
 );
 
 NavItem.propTypes = {
-  to: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  icon: PropTypes.node, // Puede ser un componente React o un elemento JSX
+  onClick: PropTypes.func.isRequired,
+  icon: PropTypes.node.isRequired,
 };
