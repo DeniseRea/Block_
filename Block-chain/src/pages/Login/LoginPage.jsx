@@ -1,3 +1,4 @@
+import { SectionTitle } from "../../components/SectionTitle";
 import { LoginForm } from "./LoginForm";
 import { useState } from "react";
 
@@ -13,6 +14,7 @@ export default function LoginPage() {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-body-secondary">
       <div className="w-100" style={{ maxWidth: "400px" }}>
+        <SectionTitle title="Block Block" />
         <h2 className="text-center mb-4">Iniciar Sesión</h2>
         <LoginForm
           onSubmit={handleLogin}
