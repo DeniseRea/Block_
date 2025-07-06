@@ -7,9 +7,11 @@ import { ListBlock } from './pages/ListBlock/ListBlock.jsx';
 import { AuditPage } from './pages/Validation/AuditPage.jsx';
 import { ConfigPage } from './pages/Config/ConfigPage.jsx';
 import { HelpPage } from './pages/Help/HelpPage.jsx';
+import { MascotPage } from './pages/Mascot/MascotPage.jsx';
 
 // Importación de estilos y scripts necesarios
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 // Agregar Bootstrap JS dinámicamente
 const bootstrapScript = document.createElement('script');
@@ -26,5 +28,6 @@ createRoot(document.getElementById('root')).render(
     <AuditPage />
     <ConfigPage />
     <HelpPage />
+    <MascotPage/>
   </StrictMode>
 );
