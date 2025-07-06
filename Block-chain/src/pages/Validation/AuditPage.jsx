@@ -2,6 +2,8 @@
 import { BlockCard } from "../../components/BlockCard";
 import { ValidationAlert } from "../../components/ValidationAlert";
 import { Button } from "../../components/Button";
+import { TableHeader } from "../../components/Table/TableHeader";
+import { AuditRow } from "../../components/Table/AuditRow";
 
 export const AuditPage = () => {
   const blocks = [
@@ -28,30 +30,36 @@ export const AuditPage = () => {
     },
   ];
 
-  const isChainValid = blocks.every(b => b.isValid);
+  const isChainValid = blocks.every((block) => block.isValid);
+
+  // Definir los encabezados de la tabla
+  const headers = ["Índice", "Hash", "Hash Anterior", "Datos", "Estado"];
 
   return (
     <div className="container py-5">
-      <h2 className="text-center mb-4"> Auditoría de la Cadena</h2>
+      <h2 className="text-center mb-4">Auditoría de la Cadena</h2>
 
       <ValidationAlert
         isValid={isChainValid}
-        successMessage=" La cadena es válida. Todos los bloques están correctamente enlazados."
-        errorMessage=" La cadena es inválida. Se ha detectado un bloque alterado."
+        successMessage="La cadena es válida. Todos los bloques están correctamente enlazados."
+        errorMessage="La cadena es inválida. Se ha detectado un bloque alterado."
       />
 
-      <div className="d-flex flex-column align-items-center">
-        {blocks.map((block, idx) => (
-          <BlockCard
-            key={block.index}
-            index={block.index}
-            hash={block.hash}
-            previousHash={block.previousHash}
-            data={block.data}
-            showArrow={idx < blocks.length - 1}
-            isValid={block.isValid}
-          />
-        ))}
+      <div className="table-responsive mt-4">
+        <table className="table table-hover table-bordered">
+          <TableHeader headers={headers} />
+          <tbody>
+            {blocks.length > 0 ? (
+              blocks.map((block) => <AuditRow key={block.index} block={block} />)
+            ) : (
+              <tr>
+                <td colSpan={headers.length} className="text-center text-muted">
+                  No hay bloques registrados.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
