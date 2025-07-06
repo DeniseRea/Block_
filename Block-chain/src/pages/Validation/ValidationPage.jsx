@@ -15,6 +15,12 @@ export const ValidationPage = ({ fileContent }) => {
                     El archivo no es válido.
                 </div>
             )}
+            {isValid && (
+            <button onClick={() => navigate('/list')} className="btn btn-primary">
+                Ver cadenas
+            </button>
+        )}
+
         </div>
     );
 };
