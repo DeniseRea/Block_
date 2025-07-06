@@ -1,14 +1,18 @@
 import { SectionTitle } from "../../components/SectionTitle";
 import { LoginForm } from "./LoginForm";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // Hook para redirigir
 
   const handleLogin = (e) => {
     e.preventDefault();
+    // Aquí puedes agregar lógica de validación si es necesario
     alert(`Usuario: ${username}, Contraseña: ${password}`);
+    navigate("/welcome"); // Redirige a la página WelcomePage
   };
 
   return (

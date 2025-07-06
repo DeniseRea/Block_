@@ -1,33 +1,31 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import LoginPage from "./pages/Login/LoginPage.jsx";
-import { WelcomePage } from "./pages/Welcome/WelcomePage.jsx";
-import { UpdatePage } from "./pages/Update/UpdatePage.jsx";
-import { ListBlock } from './pages/ListBlock/ListBlock.jsx';
-import { AuditPage } from './pages/Validation/AuditPage.jsx';
-import { ConfigPage } from './pages/Config/ConfigPage.jsx';
-import { HelpPage } from './pages/Help/HelpPage.jsx';
-import { MascotPage } from './pages/Mascot/MascotPage.jsx';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/Login/LoginPage";
+import {WelcomePage} from "./pages/Welcome/WelcomePage";
 
 // Importación de estilos y scripts necesarios
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import "bootstrap/dist/css/bootstrap.min.css";
 
 // Agregar Bootstrap JS dinámicamente
-const bootstrapScript = document.createElement('script');
-bootstrapScript.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js";
+const bootstrapScript = document.createElement("script");
+bootstrapScript.src =
+  "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js";
 bootstrapScript.defer = true;
 document.head.appendChild(bootstrapScript);
 
-createRoot(document.getElementById('root')).render(
+const fontAwesomeLink = document.createElement("link");
+fontAwesomeLink.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css";
+fontAwesomeLink.rel = "stylesheet";
+document.head.appendChild(fontAwesomeLink);
+
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <LoginPage />
-   { /*<WelcomePage name="Christopher" />
-    <UpdatePage />
-    <ListBlock />
-    <AuditPage />
-    <ConfigPage />
-    <HelpPage />
-    <MascotPage/>*/}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/welcome" element={<WelcomePage name="Usuario" />} />
+      </Routes>
+    </BrowserRouter>
   </StrictMode>
 );
