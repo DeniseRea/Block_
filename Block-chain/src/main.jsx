@@ -22,12 +22,12 @@ document.head.appendChild(bootstrapScript);
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <LoginPage />
-    <WelcomePage name="Christopher" />
+   { /*<WelcomePage name="Christopher" />
     <UpdatePage />
     <ListBlock />
     <AuditPage />
     <ConfigPage />
     <HelpPage />
-    <MascotPage/>
+    <MascotPage/>*/}
   </StrictMode>
 );
