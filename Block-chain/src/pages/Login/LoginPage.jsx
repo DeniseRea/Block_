@@ -12,7 +12,7 @@ export default function LoginPage() {
     e.preventDefault();
     // Aquí puedes agregar lógica de validación si es necesario
     alert(`Usuario: ${username}, Contraseña: ${password}`);
-    navigate("/welcome"); // Redirige a la página WelcomePage
+    navigate("/home"); // Redirige a la página WelcomePage
   };
 
   return (
