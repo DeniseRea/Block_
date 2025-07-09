@@ -4,28 +4,28 @@ import { TeamCarousel } from "../../components/TeamCarousel";
 export const WelcomePage = ({ name }) => {
   const team = [
     {
-      photo: "/src/assets/profile.png",
+      photo: "https://avatars.githubusercontent.com/u/132452462?v=4",
       name: "Mesias",
-      role: "Desarrolladora",
+      role: "Desarrollador",
       description: "Especialista en Frontend",
-      github: "https://github.com/denise",
-      linkedin: "https://www.linkedin.com/in/denise/",
+      github: "https://github.com/AMVMesias",
+      linkedin: "https://www.linkedin.com",
     },
     {
-      photo: "/src/assets/profile.png",
+      photo: "https://avatars.githubusercontent.com/u/96481219?v=4",
       name: "Julio",
       role: "Desarrollador",
       description: "Experto en Backend",
-      github: "https://github.com/alejandro",
-      linkedin: "https://www.linkedin.com/in/alejandro/",
+      github: "https://github.com/JulioViche",
+      linkedin: "https://www.linkedin.com",
     },
     {
-      photo: "/src/assets/profile.png",
+      photo: "https://avatars.githubusercontent.com/u/105187806?v=4",
       name: "Denise",
       role: "Diseñadora",
       description: "Creativa y apasionada por el diseño",
-      github: "https://github.com/denise",
-      linkedin: "https://www.linkedin.com/in/denise/",
+      github: "https://github.com/DeniseRea",
+      linkedin: "https://www.linkedin.com",
     },
   ];
 
