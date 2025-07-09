@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { FileInput } from "../../components/FileInput"; 
-import { FilePreview } from "../../components/FilePreview";
-import { Button } from "../../components/Button";
 import { ValidationPage } from "../Validation/ValidationPage";
 import { useTheme } from "../../context/ThemeContext";
 

@@ -6,7 +6,6 @@ import { ThemeToggle } from "../../components/ThemeToggle";
 import { NavBar } from "../../components/NavBar/NavBar";
 import { useTheme } from "../../context/ThemeContext";
 import ESPEcito from "../../assets/ESPEcito.png";
-import mascotaImg from "../../images/mascota.png";
 
 export const WelcomePage = ({ name, showNavBar = true }) => {
   const { colors } = useTheme();

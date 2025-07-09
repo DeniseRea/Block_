@@ -1,8 +1,6 @@
 // src/pages/Validation/AuditPage.jsx
 import React from "react";
-import { BlockCard } from "../../components/BlockCard";
 import { ValidationAlert } from "../../components/ValidationAlert";
-import { Button } from "../../components/Button";
 import { TableHeader } from "../../components/Table/TableHeader";
 import { AuditRow } from "../../components/Table/AuditRow";
 import { useTheme } from "../../context/ThemeContext";
