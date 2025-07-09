@@ -3,6 +3,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+// Importación de contexto
+import { ThemeProvider } from "./context/ThemeContext";
+
 // Importación de páginas
 import LoginPage from "./pages/Login/LoginPage";
 import { WelcomePage } from "./pages/Welcome/WelcomePage";
@@ -10,6 +13,7 @@ import { HomePage } from "./pages/Home/HomePage";
 
 // Importación de estilos
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/theme.css";
 
 // Agregar Bootstrap JS dinámicamente
 const bootstrapScript = document.createElement("script");
@@ -28,12 +32,14 @@ document.head.appendChild(fontAwesomeLink);
 // Renderizar la aplicación
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/welcome" element={<WelcomePage name="Usuario" />} />
-        <Route path="/home" element={<HomePage />} />
-      </Routes>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/welcome" element={<WelcomePage name="Usuario" />} />
+          <Route path="/home" element={<HomePage />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   </StrictMode>
 );

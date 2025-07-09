@@ -1,6 +1,10 @@
+import React from "react";
 import { BlockCard } from "../../components/BlockCard";
+import { useTheme } from "../../context/ThemeContext";
 
 export const ListBlock = () => {
+  const { colors } = useTheme();
+
   // Simulación de bloques en la blockchain
   const blocks = [
     {
@@ -24,15 +28,28 @@ export const ListBlock = () => {
   ];
 
   return (
-    <div className="container py-5">
+    <div 
+      className="container py-5"
+      style={{ 
+        backgroundColor: colors.background,
+        color: colors.text,
+        minHeight: '100vh'
+      }}
+    >
       <div className="text-center mb-4">
-        <h1 className="fw-bold"> Listando Bloques</h1>
-        <p className="text-muted">
+        <h1 className="fw-bold" style={{ color: colors.primary }}>
+          <i className="fas fa-list me-2"></i>
+          Listando Bloques
+        </h1>
+        <p style={{ color: colors.textSecondary }}>
           Esta página muestra una lista de bloques simulados en la cadena de bloques.
         </p>
       </div>
 
-      <h3 className="mb-4 text-center text-primary"> Cadenas Blockchain</h3>
+      <h3 className="mb-4 text-center" style={{ color: colors.primary }}>
+        <i className="fas fa-link me-2"></i>
+        Cadenas Blockchain
+      </h3>
 
       <div className="d-flex flex-column align-items-center">
         {blocks.map((block, idx) => (

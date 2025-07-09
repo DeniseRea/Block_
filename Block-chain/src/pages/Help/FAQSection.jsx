@@ -1,7 +1,15 @@
+import React from "react";
+import { useTheme } from "../../context/ThemeContext";
+
 export const FAQSection = () => {
+  const { colors } = useTheme();
+
   return (
     <div className="container py-5">
-      <h2 className="text-center mb-4 text-primary">Preguntas Frecuentes</h2>
+      <h2 className="text-center mb-4" style={{ color: colors.primary }}>
+        <i className="fas fa-question-circle me-2"></i>
+        Preguntas Frecuentes
+      </h2>
       <div className="accordion" id="faqAccordion">
         <FAQItem
           question="¿Cómo inicio sesión?"
@@ -22,10 +30,18 @@ export const FAQSection = () => {
 };
 
 const FAQItem = ({ question, answer }) => {
+  const { colors } = useTheme();
   const id = `faq-${question.replace(/\s+/g, "-").toLowerCase()}`;
 
   return (
-    <div className="accordion-item">
+    <div 
+      className="accordion-item"
+      style={{ 
+        backgroundColor: colors.card,
+        borderColor: colors.border,
+        marginBottom: '0.5rem'
+      }}
+    >
       <h2 className="accordion-header">
         <button
           className="accordion-button collapsed"
@@ -34,7 +50,13 @@ const FAQItem = ({ question, answer }) => {
           data-bs-target={`#${id}`}
           aria-expanded="false"
           aria-controls={id}
+          style={{ 
+            backgroundColor: colors.card,
+            color: colors.text,
+            borderColor: colors.border
+          }}
         >
+          <i className="fas fa-question me-2" style={{ color: colors.primary }}></i>
           {question}
         </button>
       </h2>
@@ -43,7 +65,17 @@ const FAQItem = ({ question, answer }) => {
         className="accordion-collapse collapse"
         data-bs-parent="#faqAccordion"
       >
-        <div className="accordion-body">{answer}</div>
+        <div 
+          className="accordion-body"
+          style={{ 
+            backgroundColor: colors.background,
+            color: colors.textSecondary,
+            borderTop: `1px solid ${colors.border}`
+          }}
+        >
+          <i className="fas fa-info-circle me-2" style={{ color: colors.info }}></i>
+          {answer}
+        </div>
       </div>
     </div>
   );

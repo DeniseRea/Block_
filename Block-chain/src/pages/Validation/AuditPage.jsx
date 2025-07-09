@@ -1,11 +1,14 @@
 // src/pages/Validation/AuditPage.jsx
+import React from "react";
 import { BlockCard } from "../../components/BlockCard";
 import { ValidationAlert } from "../../components/ValidationAlert";
 import { Button } from "../../components/Button";
 import { TableHeader } from "../../components/Table/TableHeader";
 import { AuditRow } from "../../components/Table/AuditRow";
+import { useTheme } from "../../context/ThemeContext";
 
 export const AuditPage = () => {
+  const { colors } = useTheme();
   const blocks = [
     {
       index: 1,
@@ -36,8 +39,18 @@ export const AuditPage = () => {
   const headers = ["Índice", "Hash", "Hash Anterior", "Datos", "Estado"];
 
   return (
-    <div className="container py-5">
-      <h2 className="text-center mb-4">Auditoría de la Cadena</h2>
+    <div 
+      className="container py-5"
+      style={{ 
+        backgroundColor: colors.background,
+        color: colors.text,
+        minHeight: '100vh'
+      }}
+    >
+      <h2 className="text-center mb-4" style={{ color: colors.primary }}>
+        <i className="fas fa-shield-alt me-2"></i>
+        Auditoría de la Cadena
+      </h2>
 
       <ValidationAlert
         isValid={isChainValid}
@@ -46,14 +59,25 @@ export const AuditPage = () => {
       />
 
       <div className="table-responsive mt-4">
-        <table className="table table-hover table-bordered">
+        <table 
+          className="table table-hover table-bordered"
+          style={{ 
+            backgroundColor: colors.card,
+            color: colors.text,
+            borderColor: colors.border
+          }}
+        >
           <TableHeader headers={headers} />
           <tbody>
             {blocks.length > 0 ? (
               blocks.map((block) => <AuditRow key={block.index} block={block} />)
             ) : (
               <tr>
-                <td colSpan={headers.length} className="text-center text-muted">
+                <td 
+                  colSpan={headers.length} 
+                  className="text-center"
+                  style={{ color: colors.textSecondary }}
+                >
                   No hay bloques registrados.
                 </td>
               </tr>

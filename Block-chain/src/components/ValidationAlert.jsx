@@ -1,28 +1,32 @@
 // src/components/ValidationAlert.jsx
 
+import React from "react";
 import PropTypes from "prop-types";
-import Swal from "sweetalert2";
+import { useTheme } from "../context/ThemeContext";
 
 export const ValidationAlert = ({ isValid, successMessage, errorMessage }) => {
-  // Mostrar alerta dinámica al cargar el componente
-  if (isValid) {
-    Swal.fire({
-      icon: "success",
-      title: "¡Validación exitosa!",
-      text: successMessage,
-      confirmButtonText: "Aceptar",
-    });
-  } else {
-    Swal.fire({
-      icon: "error",
-      title: "Error de validación",
-      text: errorMessage,
-      confirmButtonText: "Aceptar",
-    });
-  }
+  const { colors } = useTheme();
 
-  // Retornar un elemento vacío ya que la alerta es dinámica
-  return null;
+  return (
+    <div 
+      className={`alert ${isValid ? 'alert-success' : 'alert-danger'}`}
+      role="alert"
+      style={{ 
+        backgroundColor: isValid ? colors.success + '20' : colors.danger + '20',
+        color: isValid ? colors.success : colors.danger,
+        borderColor: isValid ? colors.success : colors.danger,
+        border: `1px solid ${isValid ? colors.success : colors.danger}`,
+        borderRadius: '8px',
+        padding: '1rem',
+        margin: '1rem 0'
+      }}
+    >
+      <i className={`fas ${isValid ? 'fa-check-circle' : 'fa-times-circle'} me-2`}></i>
+      <strong>{isValid ? '¡Validación exitosa!' : 'Error de validación'}</strong>
+      <br />
+      {isValid ? successMessage : errorMessage}
+    </div>
+  );
 };
 
 ValidationAlert.propTypes = {

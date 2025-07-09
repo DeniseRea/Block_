@@ -1,15 +1,27 @@
-// src/components/SectionTitle.jsx
-
+import React from "react";
 import PropTypes from "prop-types";
+import { useTheme } from "../context/ThemeContext";
 
 export const SectionTitle = ({ icon, title, subtitle }) => {
+  const { colors } = useTheme();
+
   return (
     <div className="text-center my-5">
-      <h2 className="display-5 fw-bold">
+      <h2 
+        className="display-5 fw-bold"
+        style={{ color: colors.primary }}
+      >
         {icon && <span className="me-2">{icon}</span>}
         {title}
       </h2>
-      {subtitle && <p className="text-muted fs-5">{subtitle}</p>}
+      {subtitle && (
+        <p 
+          className="fs-5"
+          style={{ color: colors.textSecondary }}
+        >
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 };
