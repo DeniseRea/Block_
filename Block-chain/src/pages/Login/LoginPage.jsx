@@ -30,7 +30,7 @@ export default function LoginPage() {
     >
       <ThemeToggle />
       <div className="w-100" style={{ maxWidth: "400px" }}>
-        <SectionTitle title="Block Block" />
+        <SectionTitle title="Blockchain" />
         <h2 className="text-center mb-4" style={{ color: colors.text }}>
           Iniciar Sesión
         </h2>
