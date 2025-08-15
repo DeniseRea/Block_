@@ -3,6 +3,7 @@ import { SectionTitle } from "../../components/SectionTitle";
 import { LoginForm } from "./LoginForm";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { useTheme } from "../../context/ThemeContext";
+import { useApp } from "../../context/AppContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,10 +12,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // Hook para redirigir
   const { colors } = useTheme();
+  const { actions } = useApp();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Aquí puedes agregar lógica de validación si es necesario
+    // Simular login exitoso
+    const userData = {
+      username: username,
+      email: `${username}@blockchain.com`,
+      points: Math.floor(Math.random() * 500) + 100 // Puntos aleatorios iniciales
+    };
+    
+    // Actualizar estado global
+    actions.login(userData);
+    
     console.log(`Usuario: ${username}, Contraseña: ${password}`);
     // Redirige a la página HomePage pasando el usuario
     navigate("/home", { state: { usuario: { name: username } } });

@@ -3,13 +3,16 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Importación de contexto
+// Importación de contextos
 import { ThemeProvider } from "./context/ThemeContext";
+import { AppProvider } from "./context/AppContext";
 
 // Importación de páginas
 import LoginPage from "./pages/Login/LoginPage";
 import { WelcomePage } from "./pages/Welcome/WelcomePage";
 import { HomePage } from "./pages/Home/HomePage";
+import PointsPage from "./pages/Points/PointsPage";
+import { AuditPage } from "./pages/Validation/AuditPage";
 
 // Importación de estilos
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -33,13 +36,17 @@ document.head.appendChild(fontAwesomeLink);
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/welcome" element={<WelcomePage name="Usuario" />} />
-          <Route path="/home" element={<HomePage />} />
-        </Routes>
-      </Router>
+      <AppProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/welcome" element={<WelcomePage name="Usuario" />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/points" element={<PointsPage />} />
+            <Route path="/audit" element={<AuditPage />} />
+          </Routes>
+        </Router>
+      </AppProvider>
     </ThemeProvider>
   </StrictMode>
 );

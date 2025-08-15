@@ -1,0 +1,23 @@
+package org.espe;
+
+
+import java.security.MessageDigest;
+
+public class SHA256H {
+    public static String generateHash(String data ){
+        try {
+            MessageDigest disgest = MessageDigest.getInstance("SHA-256");
+            byte[] hash= disgest.digest(data.getBytes("UTF-8"));
+            StringBuffer hexadecimalString = new StringBuffer();
+            for(int i=0; i< hash.length; i++  ){
+                String hexadecimal = Integer.toHexString(0xff & hash [i] );
+                if(hexadecimal.length()==1 ) hexadecimalString.append('0');
+                hexadecimalString.append(hexadecimal);
+            }
+            return hexadecimalString.toString();
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+}

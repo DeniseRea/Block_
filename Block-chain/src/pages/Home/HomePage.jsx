@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { NavBar } from "../../components/NavBar/NavBar";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { useTheme } from "../../context/ThemeContext";
+import { useApp } from "../../context/AppContext";
 import { WelcomePage } from "../Welcome/WelcomePage";
 import { UpdatePage } from "../Update/UpdatePage";
 import { ListBlock } from "../ListBlock/ListBlock";
@@ -10,6 +11,7 @@ import { AuditPage } from "../Validation/AuditPage";
 import { ConfigPage } from "../Config/ConfigPage";
 import { ValidationPage } from "../Validation/ValidationPage";
 import { HelpPage } from "../Help/HelpPage";
+import PointsPage from "../Points/PointsPage";
 
 export const HomePage = () => {
   const location = useLocation();
@@ -30,7 +32,7 @@ export const HomePage = () => {
       case "config":
         return <ConfigPage />;
       case "points":
-        return <ValidationPage fileContent="Ejemplo de contenido simulado" />;
+        return <PointsPage />;
       case "user":
         return <HelpPage />;
       default:

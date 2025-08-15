@@ -45,8 +45,10 @@ export const ThemeProvider = ({ children }) => {
       backgroundSecondary: isDarkMode ? '#111827' : '#f8f9fa',
       text: isDarkMode ? '#f9fafb' : '#343a40',
       textSecondary: isDarkMode ? '#d1d5db' : '#6c757d',
+      textMuted: isDarkMode ? '#9ca3af' : '#6c757d',
       border: isDarkMode ? '#374151' : '#dee2e6',
       card: isDarkMode ? '#374151' : '#ffffff',
+      cardBackground: isDarkMode ? '#374151' : '#ffffff',
       cardHover: isDarkMode ? '#4b5563' : '#f8f9fa',
     }
   };
