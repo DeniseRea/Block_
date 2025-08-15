@@ -68,30 +68,37 @@ export const usePersistence = () => {
         });
       }
 
-      // Cargar blockchain
-      const blockchain = await persistenceManager.loadBlockchain();
-      if (blockchain.length > 0) {
-        dispatch({
-          type: ACTION_TYPES.SET_BLOCKCHAIN,
-          payload: { blocks: blockchain }
-        });
+      // Cargar blockchain (con manejo de errores)
+      try {
+        const blockchain = await persistenceManager.loadBlockchain();
+        if (blockchain.length > 0) {
+          dispatch({
+            type: ACTION_TYPES.SET_BLOCKCHAIN,
+            payload: { blocks: blockchain }
+          });
+        }
+      } catch (error) {
+        console.warn('❌ Error cargando blockchain, usando datos por defecto:', error);
       }
 
-      // Cargar historial de minería
-      const miningHistory = await persistenceManager.loadMiningHistory();
-      if (miningHistory.length > 0) {
-        // Actualizar puntos basado en historial
-        const totalEarned = miningHistory.reduce((sum, record) => sum + record.reward, 0);
-        dispatch({
-          type: ACTION_TYPES.UPDATE_USER_POINTS,
-          payload: { 
-            totalEarned,
-            miningHistory 
-          }
-        });
+      // Cargar historial de minería (con manejo de errores)
+      try {
+        const miningHistory = await persistenceManager.loadMiningHistory();
+        if (miningHistory.length > 0) {
+          const totalEarned = miningHistory.reduce((sum, record) => sum + record.reward, 0);
+          dispatch({
+            type: ACTION_TYPES.SET_MINING_HISTORY,
+            payload: { 
+              miningHistory,
+              totalEarned 
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('❌ Error cargando historial de minería:', error);
       }
 
-      console.log('✅ Todos los datos cargados correctamente');
+      console.log('✅ Datos cargados correctamente');
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
     }

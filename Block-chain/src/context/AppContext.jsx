@@ -284,53 +284,12 @@ export const AppProvider = ({ children }) => {
         if (isInitialized) {
           console.log('✅ Sistema de persistencia inicializado');
           
-          // Cargar datos persistentes
+          // Cargar solo datos básicos al inicio para evitar conflictos
           const userData = persistenceManager.loadUserData();
           if (userData && userData.isAuthenticated) {
             dispatch({
               type: ACTION_TYPES.LOGIN_SUCCESS,
               payload: userData
-            });
-          }
-
-          // Cargar configuraciones
-          const settings = persistenceManager.loadSettings();
-          if (settings.mining && settings.mining.difficulty) {
-            dispatch({
-              type: ACTION_TYPES.UPDATE_DIFFICULTY,
-              payload: { difficulty: settings.mining.difficulty }
-            });
-          }
-
-          // Cargar blockchain
-          const blockchain = await persistenceManager.loadBlockchain();
-          if (blockchain.length > 0) {
-            dispatch({
-              type: ACTION_TYPES.SET_BLOCKCHAIN,
-              payload: { blocks: blockchain }
-            });
-          }
-
-          // Cargar historial de minería
-          const miningHistory = await persistenceManager.loadMiningHistory();
-          if (miningHistory.length > 0) {
-            const totalEarned = miningHistory.reduce((sum, record) => sum + record.reward, 0);
-            
-            // Actualizar puntos del usuario
-            if (userData) {
-              dispatch({
-                type: ACTION_TYPES.UPDATE_USER_POINTS,
-                payload: { points: totalEarned }
-              });
-            }
-            
-            // Actualizar historial
-            dispatch({
-              type: ACTION_TYPES.SET_MINING_HISTORY,
-              payload: { 
-                miningHistory,
-                totalEarned
-              }
             });
           }
         }
@@ -369,23 +328,31 @@ export const AppProvider = ({ children }) => {
     }
   }, [state.user]);
 
-  // Guardar blockchain automáticamente cuando cambie
+  // Guardar blockchain automáticamente cuando cambie (con debounce)
   useEffect(() => {
-    if (state.blockchain.blocks.length > 0) {
-      persistenceManager.saveBlockchain(state.blockchain.blocks).catch(error => {
-        console.error('Error guardando blockchain:', error);
-      });
-    }
-  }, [state.blockchain.blocks]);
+    if (state.blockchain.blocks.length > 2) { // Solo guardar si hay más de los bloques iniciales
+      const timeoutId = setTimeout(() => {
+        persistenceManager.saveBlockchain(state.blockchain.blocks).catch(error => {
+          console.error('Error guardando blockchain:', error);
+        });
+      }, 1000); // Debounce de 1 segundo
 
-  // Guardar historial de minería automáticamente
-  useEffect(() => {
-    if (state.points.miningHistory.length > 0) {
-      persistenceManager.saveMiningHistory(state.points.miningHistory).catch(error => {
-        console.error('Error guardando historial:', error);
-      });
+      return () => clearTimeout(timeoutId);
     }
-  }, [state.points.miningHistory]);
+  }, [state.blockchain.blocks.length]); // Solo reaccionar a cambios en la cantidad
+
+  // Guardar historial de minería automáticamente (con debounce)
+  useEffect(() => {
+    if (state.points.miningHistory.length > 2) { // Solo guardar si hay más de los registros iniciales
+      const timeoutId = setTimeout(() => {
+        persistenceManager.saveMiningHistory(state.points.miningHistory).catch(error => {
+          console.error('Error guardando historial:', error);
+        });
+      }, 500); // Debounce de 500ms
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [state.points.miningHistory.length]); // Solo reaccionar a cambios en la cantidad
   
   // Acciones
   const actions = {

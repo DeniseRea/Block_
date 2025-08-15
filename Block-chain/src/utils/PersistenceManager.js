@@ -124,20 +124,37 @@ class PersistenceManager {
       const transaction = this.db.transaction([DB_CONFIG.stores.blockchain], 'readwrite');
       const store = transaction.objectStore(DB_CONFIG.stores.blockchain);
 
-      // Limpiar store anterior
-      await store.clear();
-
-      // Guardar todos los bloques
-      for (const block of blocks) {
-        const blockData = {
-          ...block,
-          savedAt: Date.now(),
-          integrity: await this.calculateIntegrity(block)
+      // Limpiar store anterior y agregar bloques usando promesas
+      await new Promise((resolve, reject) => {
+        const clearRequest = store.clear();
+        
+        clearRequest.onsuccess = async () => {
+          try {
+            // Agregar todos los bloques
+            for (const block of blocks) {
+              const blockData = {
+                ...block,
+                savedAt: Date.now(),
+                integrity: await this.calculateIntegrity(block)
+              };
+              
+              const addRequest = store.add(blockData);
+              await new Promise((resolveAdd, rejectAdd) => {
+                addRequest.onsuccess = () => resolveAdd();
+                addRequest.onerror = () => rejectAdd(addRequest.error);
+              });
+            }
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
         };
-        await store.add(blockData);
-      }
+        
+        clearRequest.onerror = () => reject(clearRequest.error);
+        transaction.onerror = () => reject(transaction.error);
+        transaction.oncomplete = () => resolve();
+      });
 
-      await transaction.complete;
       await this.createBackup('blockchain', blocks);
       
       console.log(`✅ Blockchain guardada: ${blocks.length} bloques`);
@@ -155,16 +172,31 @@ class PersistenceManager {
     try {
       const transaction = this.db.transaction([DB_CONFIG.stores.blockchain], 'readonly');
       const store = transaction.objectStore(DB_CONFIG.stores.blockchain);
-      const blocks = await store.getAll();
+      
+      const blocks = await new Promise((resolve, reject) => {
+        const request = store.getAll();
+        
+        request.onsuccess = () => {
+          const result = request.result || [];
+          resolve(result);
+        };
+        
+        request.onerror = () => reject(request.error);
+        transaction.onerror = () => reject(transaction.error);
+      });
 
       // Validar integridad
       const validBlocks = [];
       for (const block of blocks) {
-        const currentIntegrity = await this.calculateIntegrity(block);
-        if (currentIntegrity === block.integrity) {
-          validBlocks.push(block);
-        } else {
-          console.warn(`⚠️ Bloque ${block.index} falló validación de integridad`);
+        try {
+          const currentIntegrity = await this.calculateIntegrity(block);
+          if (currentIntegrity === block.integrity) {
+            validBlocks.push(block);
+          } else {
+            console.warn(`⚠️ Bloque ${block.index} falló validación de integridad`);
+          }
+        } catch (error) {
+          console.warn(`⚠️ Error validando bloque ${block.index}:`, error);
         }
       }
 
@@ -193,11 +225,24 @@ class PersistenceManager {
       const transaction = this.db.transaction([DB_CONFIG.stores.blockchain], 'readwrite');
       const store = transaction.objectStore(DB_CONFIG.stores.blockchain);
       
-      await store.add(blockData);
-      await transaction.complete;
+      // Usar promesa para manejar la transacción correctamente
+      await new Promise((resolve, reject) => {
+        const request = store.add(blockData);
+        
+        request.onsuccess = () => {
+          console.log(`✅ Bloque ${block.index} agregado a la persistencia`);
+          this.notifySyncCallbacks('blockAdded', block);
+          resolve();
+        };
+        
+        request.onerror = () => {
+          console.error('❌ Error agregando bloque:', request.error);
+          reject(request.error);
+        };
+        
+        transaction.onerror = () => reject(transaction.error);
+      });
 
-      console.log(`✅ Bloque ${block.index} agregado a la persistencia`);
-      this.notifySyncCallbacks('blockAdded', block);
       return true;
     } catch (error) {
       console.error('❌ Error agregando bloque:', error);
@@ -373,8 +418,14 @@ class PersistenceManager {
       const transaction = this.db.transaction([DB_CONFIG.stores.backups], 'readwrite');
       const store = transaction.objectStore(DB_CONFIG.stores.backups);
       
-      await store.add(backup);
-      await transaction.complete;
+      await new Promise((resolve, reject) => {
+        const request = store.add(backup);
+        
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+        transaction.onerror = () => reject(transaction.error);
+        transaction.oncomplete = () => resolve();
+      });
 
       // Limpiar respaldos antiguos (mantener solo los últimos 5)
       await this.cleanOldBackups(type, 5);
@@ -442,20 +493,42 @@ class PersistenceManager {
       const store = transaction.objectStore(DB_CONFIG.stores.backups);
       const index = store.index('type');
       
-      const backups = await index.getAll(type);
-      backups.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      // Eliminar respaldos excedentes
-      const toDelete = backups.slice(keepCount);
-      for (const backup of toDelete) {
-        await store.delete(backup.id);
-      }
-
-      await transaction.complete;
+      // Usar cursor para obtener los respaldos
+      const backups = [];
+      const cursorRequest = index.openCursor(type);
       
-      if (toDelete.length > 0) {
-        console.log(`🗑️ ${toDelete.length} respaldos antiguos eliminados`);
+      await new Promise((resolve, reject) => {
+        cursorRequest.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            backups.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve();
+          }
+        };
+        cursorRequest.onerror = () => reject(cursorRequest.error);
+      });
+
+      // Verificar que backups es un array antes de ordenar
+      if (Array.isArray(backups) && backups.length > keepCount) {
+        backups.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        // Eliminar respaldos excedentes
+        const toDelete = backups.slice(keepCount);
+        for (const backup of toDelete) {
+          await store.delete(backup.id);
+        }
+        
+        if (toDelete.length > 0) {
+          console.log(`🗑️ ${toDelete.length} respaldos antiguos eliminados`);
+        }
       }
+
+      await new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      });
     } catch (error) {
       console.error('❌ Error limpiando respaldos:', error);
     }
