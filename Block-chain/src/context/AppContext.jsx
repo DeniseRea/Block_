@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import authService from '../services/authService';
 
 // Estados iniciales
 const initialState = {
@@ -9,60 +10,31 @@ const initialState = {
     email: '',
     points: 0,
     level: 1,
-    totalMinedBlocks: 0
+    totalMinedBlocks: 0,
+    isLoading: false
   },
   
   // Estado de la blockchain
   blockchain: {
-    blocks: [
-      // Datos de ejemplo para testing
-      {
-        index: 0,
-        hash: '0000a1b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef012345',
-        previousHash: '0000000000000000000000000000000000000000000000000000000000000000',
-        data: 'Bloque génesis',
-        timestamp: new Date(Date.now() - 172800000).toISOString(), // Hace 2 días
-        nonce: 12345
-      },
-      {
-        index: 1,
-        hash: '0000f6e5d4c3b2a1089fedcba9876543210fedcba9876543210fedcba987654',
-        previousHash: '0000a1b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef012345',
-        data: 'Primer bloque de transacciones',
-        timestamp: new Date(Date.now() - 86400000).toISOString(), // Ayer
-        nonce: 67890
-      }
-    ],
-    totalBlocks: 2,
-    lastBlockHash: '0000f6e5d4c3b2a1089fedcba9876543210fedcba9876543210fedcba987654',
+    blocks: [],
+    totalBlocks: 0,
+    lastBlockHash: '',
     difficulty: 4,
     isValid: true,
-    lastValidation: null
+    lastValidation: null,
+    isLoading: false,
+    lastSync: null
   },
   
   // Sistema de puntos
   points: {
-    currentPoints: 0,
-    totalEarned: 0,
-    miningHistory: [
-      // Datos de ejemplo para testing
-      {
-        id: 1,
-        blockHash: '0000a1b2c3d4e5f6...',
-        reward: 50,
-        timestamp: new Date(Date.now() - 86400000).toISOString(), // Ayer
-        difficulty: 4
-      },
-      {
-        id: 2,
-        blockHash: '0000f6e5d4c3b2a1...',
-        reward: 50,
-        timestamp: new Date(Date.now() - 43200000).toISOString(), // Hace 12 horas
-        difficulty: 4
-      }
-    ],
+    current: 0,
+    total: 0,
+    rank: 0,
+    history: [],
     leaderboard: [],
-    achievements: []
+    achievements: [],
+    isLoading: false
   },
   
   // Configuración de minería
@@ -103,7 +75,9 @@ const ACTION_TYPES = {
   
   // Puntos
   ADD_MINING_REWARD: 'ADD_MINING_REWARD',
+  UPDATE_POINTS: 'UPDATE_POINTS',
   UPDATE_LEADERBOARD: 'UPDATE_LEADERBOARD',
+  UPDATE_ACHIEVEMENTS: 'UPDATE_ACHIEVEMENTS',
   ADD_ACHIEVEMENT: 'ADD_ACHIEVEMENT',
   
   // Minería
@@ -116,7 +90,8 @@ const ACTION_TYPES = {
   
   // Auditoría
   START_AUDIT: 'START_AUDIT',
-  COMPLETE_AUDIT: 'COMPLETE_AUDIT'
+  COMPLETE_AUDIT: 'COMPLETE_AUDIT',
+  UPDATE_AUDIT_RESULTS: 'UPDATE_AUDIT_RESULTS'
 };
 
 // Reducer principal
@@ -233,6 +208,42 @@ const appReducer = (state, action) => {
         }
       };
       
+    case ACTION_TYPES.UPDATE_POINTS:
+      return {
+        ...state,
+        points: {
+          ...state.points,
+          ...action.payload
+        }
+      };
+      
+    case ACTION_TYPES.UPDATE_LEADERBOARD:
+      return {
+        ...state,
+        points: {
+          ...state.points,
+          leaderboard: action.payload
+        }
+      };
+      
+    case ACTION_TYPES.UPDATE_ACHIEVEMENTS:
+      return {
+        ...state,
+        points: {
+          ...state.points,
+          achievements: action.payload
+        }
+      };
+      
+    case ACTION_TYPES.UPDATE_AUDIT_RESULTS:
+      return {
+        ...state,
+        audit: {
+          ...state.audit,
+          ...action.payload
+        }
+      };
+      
     default:
       return state;
   }
@@ -317,7 +328,36 @@ export const AppProvider = ({ children }) => {
       });
     },
     
+    // Puntos
+    updatePoints: (pointsData) => {
+      dispatch({
+        type: ACTION_TYPES.UPDATE_POINTS,
+        payload: pointsData
+      });
+    },
+    
+    updateLeaderboard: (leaderboard) => {
+      dispatch({
+        type: ACTION_TYPES.UPDATE_LEADERBOARD,
+        payload: leaderboard
+      });
+    },
+    
+    updateAchievements: (achievements) => {
+      dispatch({
+        type: ACTION_TYPES.UPDATE_ACHIEVEMENTS,
+        payload: achievements
+      });
+    },
+    
     // Auditoría
+    updateAuditResults: (auditData) => {
+      dispatch({
+        type: ACTION_TYPES.UPDATE_AUDIT_RESULTS,
+        payload: auditData
+      });
+    },
+    
     completeAudit: (results, status, errors = []) => {
       dispatch({
         type: ACTION_TYPES.COMPLETE_AUDIT,

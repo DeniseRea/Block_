@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useApp } from '../../context/AppContext';
+import useBlockchain from '../../hooks/useBlockchain';
 import { SectionTitle } from '../../components/SectionTitle';
 import ValidationAlert from '../../components/ValidationAlert';
 import { Button } from '../../components/Button';
@@ -8,70 +9,50 @@ import { Button } from '../../components/Button';
 const AuditPage = () => {
   const { colors } = useTheme();
   const { state, actions } = useApp();
-  const [isAuditing, setIsAuditing] = useState(false);
+  const { validateBlockchain, isValidating, validationError } = useBlockchain();
   const [auditProgress, setAuditProgress] = useState(0);
   const [auditResults, setAuditResults] = useState(null);
 
-  // Simular proceso de auditoría
+  // Realizar auditoría usando el hook de blockchain
   const performAudit = async () => {
-    setIsAuditing(true);
     setAuditProgress(0);
     setAuditResults(null);
 
-    // Simular progreso de auditoría
-    const progressInterval = setInterval(() => {
-      setAuditProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + Math.random() * 15;
+    try {
+      // Simular progreso visual mientras se ejecuta la validación
+      const progressInterval = setInterval(() => {
+        setAuditProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 200);
+
+      // Ejecutar validación real del blockchain
+      const results = await validateBlockchain();
+      
+      clearInterval(progressInterval);
+      setAuditProgress(100);
+      setAuditResults(results);
+      
+      // Actualizar estado global con resultados
+      actions.updateAuditResults({
+        lastAuditDate: new Date().toISOString(),
+        auditResults: results,
+        integrityStatus: results.isValid ? 'valid' : 'invalid',
+        errors: results.errors || []
       });
-    }, 200);
 
-    // Simular tiempo de procesamiento
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    // Simular resultados de auditoría
-    const mockResults = {
-      totalBlocks: state.blockchain.blocks.length || 5,
-      validBlocks: state.blockchain.blocks.length || 4,
-      invalidBlocks: 1,
-      corruptedHashes: ['0x123...abc', '0x456...def'],
-      integrityScore: 85,
-      lastAuditDate: new Date().toISOString(),
-      issues: [
-        {
-          type: 'warning',
-          message: 'Bloque #3 tiene un hash inconsistente',
-          blockIndex: 3,
-          severity: 'medium'
-        },
-        {
-          type: 'error',
-          message: 'Bloque #5 falla la validación de firma',
-          blockIndex: 5,
-          severity: 'high'
-        }
-      ],
-      recommendations: [
-        'Verificar la integridad de los bloques corruptos',
-        'Considerar regenerar la cadena desde el último punto válido',
-        'Implementar checksums adicionales para futura validación'
-      ]
-    };
-
-    clearInterval(progressInterval);
-    setAuditProgress(100);
-    setAuditResults(mockResults);
-    setIsAuditing(false);
-
-    // Actualizar estado global
-    actions.completeAudit(
-      mockResults,
-      mockResults.integrityScore >= 80 ? 'valid' : 'invalid',
-      mockResults.issues
-    );
+    } catch (error) {
+      console.error('Error durante la auditoría:', error);
+      setAuditResults({
+        isValid: false,
+        errors: [{ type: 'system', message: 'Error del sistema durante la auditoría' }],
+        summary: { totalBlocks: 0, validBlocks: 0, invalidBlocks: 0 }
+      });
+    }
   };
 
   const getStatusColor = (score) => {
@@ -110,22 +91,22 @@ const AuditPage = () => {
             >
               <div className="card-body p-4 text-center">
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-                  {isAuditing ? '🔄' : '🔍'}
+                  {isValidating ? '🔄' : '🔍'}
                 </div>
                 
                 <h5 style={{ color: colors.text, marginBottom: '1rem' }}>
-                  {isAuditing ? 'Auditando Blockchain...' : 'Iniciar Auditoría Completa'}
+                  {isValidating ? 'Auditando Blockchain...' : 'Iniciar Auditoría Completa'}
                 </h5>
                 
                 <p style={{ color: colors.textMuted, marginBottom: '1.5rem' }}>
-                  {isAuditing ? 
+                  {isValidating ? 
                     'Verificando la integridad de todos los bloques en la cadena' :
                     'Analiza todos los bloques, verifica hashes y detecta inconsistencias'
                   }
                 </p>
 
                 {/* Progress Bar */}
-                {isAuditing && (
+                {isValidating && (
                   <div className="mb-3">
                     <div 
                       className="progress"
@@ -154,11 +135,20 @@ const AuditPage = () => {
                 <Button
                   variant="primary"
                   onClick={performAudit}
-                  disabled={isAuditing}
+                  disabled={isValidating}
                   className="px-4"
                 >
-                  {isAuditing ? 'Auditando...' : 'Iniciar Auditoría'}
+                  {isValidating ? 'Auditando...' : 'Iniciar Auditoría'}
                 </Button>
+
+                {/* Error Display */}
+                {validationError && (
+                  <div className="mt-3">
+                    <div className="alert alert-danger">
+                      <strong>Error:</strong> {validationError}
+                    </div>
+                  </div>
+                )}
 
                 {state.audit.lastAuditDate && (
                   <div className="mt-3">

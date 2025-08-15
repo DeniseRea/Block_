@@ -4,31 +4,27 @@ import { LoginForm } from "./LoginForm";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { useTheme } from "../../context/ThemeContext";
 import { useApp } from "../../context/AppContext";
+import useAuth from "../../hooks/useAuth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // Hook para redirigir
+  const navigate = useNavigate();
   const { colors } = useTheme();
-  const { actions } = useApp();
+  const { login, loggingIn, loginError } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simular login exitoso
-    const userData = {
-      username: username,
-      email: `${username}@blockchain.com`,
-      points: Math.floor(Math.random() * 500) + 100 // Puntos aleatorios iniciales
-    };
     
-    // Actualizar estado global
-    actions.login(userData);
-    
-    console.log(`Usuario: ${username}, Contraseña: ${password}`);
-    // Redirige a la página HomePage pasando el usuario
-    navigate("/home", { state: { usuario: { name: username } } });
+    try {
+      await login(username, password);
+      navigate('/home');
+    } catch (err) {
+      // Los errores ya se manejan en useAuth
+      console.error('Error en login:', err);
+    }
   };
 
   return (
@@ -45,12 +41,18 @@ export default function LoginPage() {
         <h2 className="text-center mb-4" style={{ color: colors.text }}>
           Iniciar Sesión
         </h2>
+        {loginError && (
+          <div className="alert alert-danger" role="alert">
+            {loginError}
+          </div>
+        )}
         <LoginForm
           onSubmit={handleLogin}
           username={username}
           password={password}
           onUsernameChange={(e) => setUsername(e.target.value)}
           onPasswordChange={(e) => setPassword(e.target.value)}
+          isLoading={loggingIn}
         />
       </div>
     </div>

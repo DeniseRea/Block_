@@ -5,7 +5,14 @@ import { InputField } from "../../components/InputField";
 import { ImageDisplay } from "../../components/ImageDisplay";
 import { useTheme } from "../../context/ThemeContext";
 
-export const LoginForm = ({ onSubmit, username, password, onUsernameChange, onPasswordChange }) => {
+export const LoginForm = ({ 
+  onSubmit, 
+  username, 
+  password, 
+  onUsernameChange, 
+  onPasswordChange,
+  isLoading = false 
+}) => {
   const { colors } = useTheme();
 
   return (
@@ -35,7 +42,9 @@ export const LoginForm = ({ onSubmit, username, password, onUsernameChange, onPa
         onChange={onPasswordChange} 
         required 
       />
-      <Button type="submit">Iniciar Sesión</Button>
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+      </Button>
     </form>
   );
 };
@@ -46,4 +55,5 @@ LoginForm.propTypes = {
   password: PropTypes.string.isRequired,
   onUsernameChange: PropTypes.func.isRequired,
   onPasswordChange: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool
 };

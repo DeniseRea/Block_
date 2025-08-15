@@ -6,26 +6,58 @@ import PointsDisplay from './PointsDisplay';
 import MiningHistory from './MiningHistory';
 import PointsLeaderboard from './PointsLeaderboard';
 import AchievementsList from './AchievementsList';
+import useAsync from '../../hooks/useAsync';
+import pointsService from '../../services/pointsService';
 
 const PointsPage = () => {
   const { colors } = useTheme();
   const { state, actions } = useApp();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Simular datos de leaderboard (normalmente vendría del backend)
+  // Cargar datos de puntos desde el backend
+  const {
+    data: pointsData,
+    loading: pointsLoading,
+    error: pointsError,
+    execute: loadPoints
+  } = useAsync(pointsService.getUserPoints, false);
+
+  const {
+    data: leaderboardData,
+    loading: leaderboardLoading,
+    execute: loadLeaderboard
+  } = useAsync(pointsService.getLeaderboard, false);
+
+  const {
+    data: achievementsData,
+    loading: achievementsLoading,
+    execute: loadAchievements
+  } = useAsync(pointsService.getUserAchievements, false);
+
   useEffect(() => {
-    // Datos de ejemplo
-    const mockLeaderboard = [
-      { id: 1, username: state.user.username, points: state.user.points, rank: 1 },
-      { id: 2, username: 'Alice', points: 750, rank: 2 },
-      { id: 3, username: 'Bob', points: 650, rank: 3 },
-      { id: 4, username: 'Charlie', points: 500, rank: 4 },
-      { id: 5, username: 'Diana', points: 350, rank: 5 }
-    ];
-    
-    // En una app real, esto vendría de una API
-    // actions.updateLeaderboard(mockLeaderboard);
-  }, [state.user.points]);
+    loadPoints();
+    loadLeaderboard();
+    loadAchievements();
+  }, []);
+
+  // Actualizar estado global cuando se cargan los datos
+  useEffect(() => {
+    if (pointsData) {
+      actions.updatePoints(pointsData);
+    }
+  }, [pointsData, actions]);
+
+  useEffect(() => {
+    if (leaderboardData) {
+      actions.updateLeaderboard(leaderboardData);
+    }
+  }, [leaderboardData, actions]);
+
+  useEffect(() => {
+    if (achievementsData) {
+      actions.updateAchievements(achievementsData);
+    }
+  }, [achievementsData, actions]);
 
   const tabs = [
     { id: 'overview', label: 'Resumen', icon: '📊' },
@@ -73,44 +105,71 @@ const PointsPage = () => {
           </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="row justify-content-center">
-          <div className="col-12">
-            {activeTab === 'overview' && (
-              <PointsDisplay 
-                user={state.user}
-                pointsData={state.points}
-                miningStatus={state.mining}
-              />
-            )}
-            
-            {activeTab === 'history' && (
-              <MiningHistory 
-                history={state.points.miningHistory}
-                totalEarned={state.points.totalEarned}
-              />
-            )}
-            
-            {activeTab === 'leaderboard' && (
-              <PointsLeaderboard 
-                currentUser={state.user}
-                leaderboard={[
-                  { username: state.user.username, points: state.user.points, rank: 1 },
-                  { username: 'Alice', points: 750, rank: 2 },
-                  { username: 'Bob', points: 650, rank: 3 },
-                  { username: 'Charlie', points: 500, rank: 4 }
-                ]}
-              />
-            )}
-            
-            {activeTab === 'achievements' && (
-              <AchievementsList 
-                achievements={state.points.achievements}
-                userStats={state.user}
-              />
-            )}
+        {/* Loading State */}
+        {(pointsLoading || leaderboardLoading || achievementsLoading) && (
+          <div className="text-center py-5">
+            <div className="spinner-border" style={{ color: colors.primary }} role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+            <p className="mt-3" style={{ color: colors.textMuted }}>
+              Cargando datos de puntos...
+            </p>
           </div>
-        </div>
+        )}
+
+        {/* Error State */}
+        {pointsError && (
+          <div className="alert alert-danger text-center">
+            <h5>Error al cargar datos</h5>
+            <p>{pointsError}</p>
+            <button 
+              className="btn btn-outline-danger" 
+              onClick={() => {
+                loadPoints();
+                loadLeaderboard();
+                loadAchievements();
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {/* Tab Content */}
+        {!pointsLoading && !pointsError && (
+          <div className="row justify-content-center">
+            <div className="col-12">
+              {activeTab === 'overview' && (
+                <PointsDisplay 
+                  user={state.user}
+                  pointsData={state.points}
+                  miningStatus={state.mining}
+                />
+              )}
+              
+              {activeTab === 'history' && (
+                <MiningHistory 
+                  history={state.points.history || []}
+                  totalEarned={state.points.total || 0}
+                />
+              )}
+              
+              {activeTab === 'leaderboard' && (
+                <PointsLeaderboard 
+                  currentUser={state.user}
+                  leaderboard={state.points.leaderboard || []}
+                />
+              )}
+              
+              {activeTab === 'achievements' && (
+                <AchievementsList 
+                  achievements={state.points.achievements || []}
+                  userStats={state.user}
+                />
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
