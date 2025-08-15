@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import persistenceManager from '../utils/PersistenceManager';
 
 // Estados iniciales
 const initialState = {
@@ -105,6 +106,7 @@ const ACTION_TYPES = {
   ADD_MINING_REWARD: 'ADD_MINING_REWARD',
   UPDATE_LEADERBOARD: 'UPDATE_LEADERBOARD',
   ADD_ACHIEVEMENT: 'ADD_ACHIEVEMENT',
+  SET_MINING_HISTORY: 'SET_MINING_HISTORY',
   
   // Minería
   START_MINING: 'START_MINING',
@@ -176,6 +178,15 @@ const appReducer = (state, action) => {
           lastBlockHash: action.payload.block.hash
         }
       };
+
+    case ACTION_TYPES.UPDATE_DIFFICULTY:
+      return {
+        ...state,
+        mining: {
+          ...state.mining,
+          difficulty: action.payload.difficulty
+        }
+      };
       
     case ACTION_TYPES.ADD_MINING_REWARD:
       return {
@@ -199,6 +210,17 @@ const appReducer = (state, action) => {
               difficulty: state.mining.difficulty
             }
           ]
+        }
+      };
+      
+    case ACTION_TYPES.SET_MINING_HISTORY:
+      return {
+        ...state,
+        points: {
+          ...state.points,
+          miningHistory: action.payload.miningHistory,
+          totalEarned: action.payload.totalEarned,
+          currentPoints: action.payload.totalEarned
         }
       };
       
@@ -254,7 +276,73 @@ export const useApp = () => {
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   
-  // Cargar datos del localStorage al iniciar
+  // Inicializar persistencia al montar
+  useEffect(() => {
+    const initializePersistence = async () => {
+      try {
+        const isInitialized = await persistenceManager.initialize();
+        if (isInitialized) {
+          console.log('✅ Sistema de persistencia inicializado');
+          
+          // Cargar datos persistentes
+          const userData = persistenceManager.loadUserData();
+          if (userData && userData.isAuthenticated) {
+            dispatch({
+              type: ACTION_TYPES.LOGIN_SUCCESS,
+              payload: userData
+            });
+          }
+
+          // Cargar configuraciones
+          const settings = persistenceManager.loadSettings();
+          if (settings.mining && settings.mining.difficulty) {
+            dispatch({
+              type: ACTION_TYPES.UPDATE_DIFFICULTY,
+              payload: { difficulty: settings.mining.difficulty }
+            });
+          }
+
+          // Cargar blockchain
+          const blockchain = await persistenceManager.loadBlockchain();
+          if (blockchain.length > 0) {
+            dispatch({
+              type: ACTION_TYPES.SET_BLOCKCHAIN,
+              payload: { blocks: blockchain }
+            });
+          }
+
+          // Cargar historial de minería
+          const miningHistory = await persistenceManager.loadMiningHistory();
+          if (miningHistory.length > 0) {
+            const totalEarned = miningHistory.reduce((sum, record) => sum + record.reward, 0);
+            
+            // Actualizar puntos del usuario
+            if (userData) {
+              dispatch({
+                type: ACTION_TYPES.UPDATE_USER_POINTS,
+                payload: { points: totalEarned }
+              });
+            }
+            
+            // Actualizar historial
+            dispatch({
+              type: ACTION_TYPES.SET_MINING_HISTORY,
+              payload: { 
+                miningHistory,
+                totalEarned
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error inicializando persistencia:', error);
+      }
+    };
+
+    initializePersistence();
+  }, []);
+  
+  // Cargar datos del localStorage al iniciar (fallback)
   useEffect(() => {
     const savedUser = localStorage.getItem('blockchain-user');
     if (savedUser) {
@@ -266,14 +354,38 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
   
-  // Guardar usuario en localStorage cuando cambie
+  // Guardar usuario automáticamente cuando cambie
   useEffect(() => {
     if (state.user.isAuthenticated) {
+      // Guardar en localStorage (inmediato)
       localStorage.setItem('blockchain-user', JSON.stringify(state.user));
+      
+      // Guardar en persistencia (asíncrono)
+      persistenceManager.saveUserData(state.user).catch(error => {
+        console.error('Error guardando usuario:', error);
+      });
     } else {
       localStorage.removeItem('blockchain-user');
     }
   }, [state.user]);
+
+  // Guardar blockchain automáticamente cuando cambie
+  useEffect(() => {
+    if (state.blockchain.blocks.length > 0) {
+      persistenceManager.saveBlockchain(state.blockchain.blocks).catch(error => {
+        console.error('Error guardando blockchain:', error);
+      });
+    }
+  }, [state.blockchain.blocks]);
+
+  // Guardar historial de minería automáticamente
+  useEffect(() => {
+    if (state.points.miningHistory.length > 0) {
+      persistenceManager.saveMiningHistory(state.points.miningHistory).catch(error => {
+        console.error('Error guardando historial:', error);
+      });
+    }
+  }, [state.points.miningHistory]);
   
   // Acciones
   const actions = {
@@ -327,10 +439,19 @@ export const AppProvider = ({ children }) => {
   };
   
   return (
-    <AppContext.Provider value={{ state, actions }}>
+    <AppContext.Provider value={{ state, actions, dispatch, ACTION_TYPES }}>
       {children}
     </AppContext.Provider>
   );
+};
+
+// Hook personalizado para usar el contexto
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useAppContext debe usarse dentro de un AppProvider');
+  }
+  return context;
 };
 
 export default AppContext;

@@ -117,3 +117,5 @@ const PointsPage = () => {
 };
 
 export default PointsPage;
+
+

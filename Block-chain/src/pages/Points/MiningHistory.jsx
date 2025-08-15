@@ -125,3 +125,5 @@ const MiningHistory = ({ history, totalEarned }) => {
 };
 
 export default MiningHistory;
+
+

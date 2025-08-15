@@ -80,3 +80,4 @@ const FAQItem = ({ question, answer }) => {
     </div>
   );
 };
+

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { NavBar } from "../../components/NavBar/NavBar";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import { useTheme } from "../../context/ThemeContext";
-import { useApp } from "../../context/AppContext";
+import { useAppContext } from "../../context/AppContext";
 import { WelcomePage } from "../Welcome/WelcomePage";
 import { UpdatePage } from "../Update/UpdatePage";
 import { ListBlock } from "../ListBlock/ListBlock";
@@ -12,6 +12,7 @@ import { ConfigPage } from "../Config/ConfigPage";
 import { ValidationPage } from "../Validation/ValidationPage";
 import { HelpPage } from "../Help/HelpPage";
 import PointsPage from "../Points/PointsPage";
+import MiningPage from "../Mining/MiningPage";
 
 export const HomePage = () => {
   const location = useLocation();
@@ -27,6 +28,10 @@ export const HomePage = () => {
         return <UpdatePage />;
       case "list":
         return <ListBlock />;
+      case "blocks":
+        return <ListBlock />;
+      case "mining":
+        return <MiningPage />;
       case "audit":
         return <AuditPage />;
       case "config":
@@ -63,3 +68,5 @@ export const HomePage = () => {
     </div>
   );
 };
+
+

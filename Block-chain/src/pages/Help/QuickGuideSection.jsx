@@ -48,3 +48,4 @@ const QuickGuideButton = ({ text, link, icon }) => {
       </a>
    );
 };
+

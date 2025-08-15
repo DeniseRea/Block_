@@ -13,6 +13,9 @@ import { WelcomePage } from "./pages/Welcome/WelcomePage";
 import { HomePage } from "./pages/Home/HomePage";
 import PointsPage from "./pages/Points/PointsPage";
 import { AuditPage } from "./pages/Validation/AuditPage";
+import { ListBlock } from "./pages/ListBlock/ListBlock";
+import MiningPage from "./pages/Mining/MiningPage";
+import NavigationTest from "./pages/NavigationTest";
 
 // Importación de estilos
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -44,6 +47,9 @@ createRoot(document.getElementById("root")).render(
             <Route path="/home" element={<HomePage />} />
             <Route path="/points" element={<PointsPage />} />
             <Route path="/audit" element={<AuditPage />} />
+            <Route path="/blocks" element={<ListBlock />} />
+            <Route path="/mining" element={<MiningPage />} />
+            <Route path="/nav" element={<NavigationTest />} />
           </Routes>
         </Router>
       </AppProvider>

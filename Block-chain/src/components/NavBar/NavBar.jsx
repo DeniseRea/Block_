@@ -1,7 +1,7 @@
 import React from "react";
 import { NavItem } from "./NavItem";
 import { useTheme } from "../../context/ThemeContext";
-import { FaHome, FaUpload, FaList, FaClipboardCheck, FaCog, FaStar, FaUser } from "react-icons/fa";
+import { FaHome, FaUpload, FaList, FaClipboardCheck, FaCog, FaStar, FaUser, FaCubes, FaTools } from "react-icons/fa";
 
 export const NavBar = ({ onNavigate, currentPage }) => {
   const { colors } = useTheme();
@@ -10,6 +10,8 @@ export const NavBar = ({ onNavigate, currentPage }) => {
     { key: "welcome", icon: FaHome, label: "Inicio" },
     { key: "upload", icon: FaUpload, label: "Subir" },
     { key: "list", icon: FaList, label: "Lista" },
+    { key: "blocks", icon: FaCubes, label: "Bloques" },
+    { key: "mining", icon: FaTools, label: "Minería" },
     { key: "audit", icon: FaClipboardCheck, label: "Auditoría" },
     { key: "config", icon: FaCog, label: "Configuración" },
     { key: "points", icon: FaStar, label: "Puntos" },

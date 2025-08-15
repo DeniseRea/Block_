@@ -214,3 +214,5 @@ const AchievementsList = ({ achievements = [], userStats }) => {
 };
 
 export default AchievementsList;
+
+

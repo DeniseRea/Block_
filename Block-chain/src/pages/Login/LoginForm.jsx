@@ -47,3 +47,4 @@ LoginForm.propTypes = {
   onUsernameChange: PropTypes.func.isRequired,
   onPasswordChange: PropTypes.func.isRequired,
 };
+

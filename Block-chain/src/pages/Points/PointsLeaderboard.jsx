@@ -150,3 +150,5 @@ const PointsLeaderboard = ({ currentUser, leaderboard }) => {
 };
 
 export default PointsLeaderboard;
+
+

@@ -161,3 +161,5 @@ const PointsDisplay = ({ user, pointsData, miningStatus }) => {
 };
 
 export default PointsDisplay;
+
+
