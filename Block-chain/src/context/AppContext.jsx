@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import persistenceManager from '../utils/PersistenceManager';
+import simplePersistenceManager from '../utils/SimplePersistenceManager';
 
 // Estados iniciales
 const initialState = {
@@ -280,16 +280,38 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const initializePersistence = async () => {
       try {
-        const isInitialized = await persistenceManager.initialize();
+        const isInitialized = await simplePersistenceManager.initialize();
         if (isInitialized) {
-          console.log('✅ Sistema de persistencia inicializado');
+          console.log('✅ Sistema de persistencia simple inicializado');
           
-          // Cargar solo datos básicos al inicio para evitar conflictos
-          const userData = persistenceManager.loadUserData();
+          // Cargar solo datos básicos al inicio
+          const userData = simplePersistenceManager.loadUserData();
           if (userData && userData.isAuthenticated) {
             dispatch({
               type: ACTION_TYPES.LOGIN_SUCCESS,
               payload: userData
+            });
+          }
+
+          // Cargar blockchain
+          const blockchain = simplePersistenceManager.loadBlockchain();
+          if (blockchain.length > 0) {
+            dispatch({
+              type: ACTION_TYPES.SET_BLOCKCHAIN,
+              payload: { blocks: blockchain }
+            });
+          }
+
+          // Cargar historial de minería
+          const miningHistory = simplePersistenceManager.loadMiningHistory();
+          if (miningHistory.length > 0) {
+            const totalEarned = miningHistory.reduce((sum, record) => sum + record.reward, 0);
+            dispatch({
+              type: ACTION_TYPES.SET_MINING_HISTORY,
+              payload: { 
+                miningHistory,
+                totalEarned
+              }
             });
           }
         }
@@ -319,10 +341,8 @@ export const AppProvider = ({ children }) => {
       // Guardar en localStorage (inmediato)
       localStorage.setItem('blockchain-user', JSON.stringify(state.user));
       
-      // Guardar en persistencia (asíncrono)
-      persistenceManager.saveUserData(state.user).catch(error => {
-        console.error('Error guardando usuario:', error);
-      });
+      // Guardar en persistencia simple (síncrono)
+      simplePersistenceManager.saveUserData(state.user);
     } else {
       localStorage.removeItem('blockchain-user');
     }
@@ -332,9 +352,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (state.blockchain.blocks.length > 2) { // Solo guardar si hay más de los bloques iniciales
       const timeoutId = setTimeout(() => {
-        persistenceManager.saveBlockchain(state.blockchain.blocks).catch(error => {
-          console.error('Error guardando blockchain:', error);
-        });
+        simplePersistenceManager.saveBlockchain(state.blockchain.blocks);
       }, 1000); // Debounce de 1 segundo
 
       return () => clearTimeout(timeoutId);
@@ -345,9 +363,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (state.points.miningHistory.length > 2) { // Solo guardar si hay más de los registros iniciales
       const timeoutId = setTimeout(() => {
-        persistenceManager.saveMiningHistory(state.points.miningHistory).catch(error => {
-          console.error('Error guardando historial:', error);
-        });
+        simplePersistenceManager.saveMiningHistory(state.points.miningHistory);
       }, 500); // Debounce de 500ms
 
       return () => clearTimeout(timeoutId);
